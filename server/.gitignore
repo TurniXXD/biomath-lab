@@ -1,0 +1,76 @@
+# ----------------------------
+# Python bytecode
+# ----------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ----------------------------
+# Virtual environments
+# ----------------------------
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ----------------------------
+# Distribution / packaging
+# ----------------------------
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# ----------------------------
+# Logs
+# ----------------------------
+*.log
+logs/
+
+# ----------------------------
+# Environment variables
+# ----------------------------
+.env
+.env.*
+!.env.example
+
+# ----------------------------
+# SQLite (if used)
+# ----------------------------
+*.sqlite3
+*.db
+
+# ----------------------------
+# Pytest / coverage
+# ----------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# ----------------------------
+# Mypy / Ruff / caches
+# ----------------------------
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+
+# ----------------------------
+# IDE
+# ----------------------------
+.vscode/
+.idea/
+
+# ----------------------------
+# OS
+# ----------------------------
+.DS_Store
+Thumbs.db
+
+# ----------------------------
+# Docker overrides
+# ----------------------------
+docker-compose.override.yml
