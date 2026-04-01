@@ -1,42 +1,27 @@
-"use client";
+import { Box, Heading, Stack } from "@chakra-ui/react";
+import type { Metadata } from "next";
+import LoginButtons from "./login-buttons";
 
-import { Box, Button, Stack, Heading } from "@chakra-ui/react";
-import { useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+type LoginPageProps = {
+  searchParams?: Record<string, string | string[] | undefined>;
+};
 
-export default function LoginPage() {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+export const metadata: Metadata = {
+  title: "Sign in",
+};
+
+export default function LoginPage({ searchParams }: LoginPageProps) {
+  const callbackUrl = Array.isArray(searchParams?.callbackUrl)
+    ? searchParams?.callbackUrl[0]
+    : searchParams?.callbackUrl ?? "/";
 
   return (
-    <Box
-      minH="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-    >
+    <Box minH="100vh" display="flex" alignItems="center" justifyContent="center">
       <Stack spacing={4} w="300px">
         <Heading size="md" textAlign="center">
           Sign in
         </Heading>
-
-        <Button
-          colorScheme="red"
-          onClick={() => {
-            void signIn("google", { callbackUrl });
-          }}
-        >
-          Continue with Google
-        </Button>
-
-        <Button
-          colorScheme="gray"
-          onClick={() => {
-            void signIn("github", { callbackUrl });
-          }}
-        >
-          Continue with GitHub
-        </Button>
+        <LoginButtons callbackUrl={callbackUrl} />
       </Stack>
     </Box>
   );

@@ -266,7 +266,7 @@ const PenroseTriangle3D = () => {
             }}
             {...(showConstruction
               ? {}
-              : darkSecondaryButtonProps)}
+              : (({ variant: _variant, ...rest }) => rest)(darkSecondaryButtonProps))}
           >
             {showConstruction ? "Hide Construction" : "Show Construction"}
           </Button>

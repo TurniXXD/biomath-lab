@@ -202,7 +202,7 @@ const MengerScene = ({
     <>
       <color attach="background" args={["#020617"]} />
       <fog attach="fog" args={["#020617", 18, 36]} />
-      <hemisphereLight skyColor="#e0f2fe" groundColor="#0f172a" intensity={1.15} />
+      <hemisphereLight color="#e0f2fe" groundColor="#0f172a" intensity={1.15} />
       <directionalLight position={[8, 10, 12]} intensity={1.55} />
       <directionalLight position={[-10, -4, -8]} intensity={0.6} color="#f59e0b" />
       <pointLight position={[-8, -6, -10]} intensity={0.8} color="#7dd3fc" />

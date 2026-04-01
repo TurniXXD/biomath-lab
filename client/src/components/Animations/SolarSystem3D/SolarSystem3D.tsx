@@ -74,17 +74,15 @@ const OrbitRing = ({ radius }: { radius: number }) => {
   }, [radius]);
 
   return (
-    <line>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={points.length}
-          array={new Float32Array(points.flat())}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <lineBasicMaterial color="#334155" transparent opacity={0.7} />
-    </line>
+      <line>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[new Float32Array(points.flat()), 3]}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial color="#334155" transparent opacity={0.7} />
+      </line>
   );
 };
 
@@ -170,9 +168,7 @@ const SolarScene = ({
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            count={stars.length / 3}
-            array={stars}
-            itemSize={3}
+            args={[stars, 3]}
           />
         </bufferGeometry>
         <pointsMaterial color="#e2e8f0" size={0.75} sizeAttenuation />
