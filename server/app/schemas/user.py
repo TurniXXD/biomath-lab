@@ -9,8 +9,8 @@ class UserCreate(BaseModel):
 class UserOut(BaseModel):
     id: int
     email: str
-    updatedAt: datetime
-    createdAt: datetime
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True

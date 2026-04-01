@@ -15,6 +15,7 @@ import {
   Tr,
   VStack,
 } from "@chakra-ui/react";
+import { darkSecondaryButtonProps } from "@/components/Animations/AlgorithmDialogButton";
 
 type Axis = "x" | "y" | "z";
 
@@ -31,6 +32,12 @@ type PlaneSceneProps = {
 
 const degToRad = (deg: number) => {
   return (deg * Math.PI) / 180;
+};
+
+const activeStepButtonProps = (active: boolean) => {
+  return active
+    ? { colorScheme: "orange" as const }
+    : darkSecondaryButtonProps;
 };
 
 const toFixed = (v: number, n = 3) => {
@@ -226,7 +233,7 @@ const PlaneRotationSim = () => {
               onClick={() => {
                 reset();
               }}
-              variant="outline"
+              {...darkSecondaryButtonProps}
             >
               Reset
             </Button>
@@ -235,7 +242,7 @@ const PlaneRotationSim = () => {
               onClick={() => {
                 setStepDeg(5);
               }}
-              variant={stepDeg === 5 ? "solid" : "outline"}
+              {...activeStepButtonProps(stepDeg === 5)}
             >
               5°
             </Button>
@@ -243,7 +250,7 @@ const PlaneRotationSim = () => {
               onClick={() => {
                 setStepDeg(15);
               }}
-              variant={stepDeg === 15 ? "solid" : "outline"}
+              {...activeStepButtonProps(stepDeg === 15)}
             >
               15°
             </Button>
@@ -251,7 +258,7 @@ const PlaneRotationSim = () => {
               onClick={() => {
                 setStepDeg(45);
               }}
-              variant={stepDeg === 45 ? "solid" : "outline"}
+              {...activeStepButtonProps(stepDeg === 45)}
             >
               45°
             </Button>

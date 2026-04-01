@@ -22,6 +22,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import PdbViewer from "@/components/PdbViewer/PdbViewer";
+import DNASequenceWorkspace from "@/components/DNASequence/DNASequenceWorkspace";
 import { parsePdb } from "@/utils/parsers/pdb";
 
 const samplePdb = `HEADER    PLANT PROTEIN                           30-APR-81   1CRN
@@ -141,6 +142,8 @@ export default function PdbPage() {
           a structure by PDB ID.
         </Text>
       </Box>
+
+      <DNASequenceWorkspace title="Shared DNA workspace" />
 
       <Grid templateColumns={{ base: "1fr", xl: "360px 1fr" }} gap={6}>
         <GridItem>

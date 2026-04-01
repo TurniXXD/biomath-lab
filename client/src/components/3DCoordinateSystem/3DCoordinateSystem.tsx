@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Heading, Text, VStack } from "@chakra-ui/react";
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, GizmoHelper, GizmoViewport } from "@react-three/drei";
 import * as THREE from "three";
@@ -247,6 +247,51 @@ export const CoordinateSystem3D = () => {
             Drag cube to rotate
           </Text>
         </Box>
+      </Box>
+
+      <Box
+        position="absolute"
+        right={3}
+        top="250px"
+        w="320px"
+        maxW="calc(100% - 24px)"
+        p={4}
+        borderWidth="1px"
+        borderRadius="xl"
+        bg="whiteAlpha.900"
+        boxShadow="lg"
+        backdropFilter="blur(10px)"
+        pointerEvents="none"
+        display={{ base: "none", xl: "block" }}
+      >
+        <VStack align="stretch" spacing={3}>
+          <Box>
+            <Heading size="sm" mb={1}>
+              How the spiral is formed
+            </Heading>
+            <Text fontSize="sm" color="gray.600">
+              This curve is parametric. One axis moves forward steadily, while
+              the other two axes oscillate with sine waves. That combination
+              makes the path wrap around the axis and look like a spiral.
+            </Text>
+          </Box>
+
+          <Box bg="blackAlpha.50" borderRadius="lg" px={3} py={2}>
+            <Text fontSize="sm" fontFamily="mono" whiteSpace="pre-line">
+              x = v · t
+              {"\n"}
+              y = A · sin(w<sub>1</sub> · t + t<sub>0</sub>)
+              {"\n"}
+              z = B · sin(w<sub>2</sub> · t + phase + t<sub>0</sub>)
+            </Text>
+          </Box>
+
+          <Text fontSize="xs" color="gray.600">
+            In this scene, the two sine terms use the same base frequency but a
+            phase shift. If the frequencies were different, the path would look
+            more like a Lissajous curve than a clean helix.
+          </Text>
+        </VStack>
       </Box>
     </Box>
   );

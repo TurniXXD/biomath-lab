@@ -13,6 +13,9 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import AlgorithmDialogButton, {
+  darkSecondaryButtonProps,
+} from "@/components/Animations/AlgorithmDialogButton";
 
 type Params = {
   lr: number;
@@ -38,6 +41,24 @@ const f = (x: number) => {
 // Derivative: f'(x) = 4x^3 - 6x
 const df = (x: number) => {
   return 4 * x * x * x - 6 * x;
+};
+
+const GRADIENT_DESCENT_ALGO = {
+  title: "Gradient descent update",
+  summary:
+    "The animation evaluates a one-dimensional function and repeatedly updates x by moving opposite the gradient. The path ends near a local minimum, or keeps moving if the learning rate is too large.",
+  steps: [
+    "Start from an initial x value.",
+    "Compute the current function value and derivative.",
+    "Apply x_{t+1} = x_t - η · f'(x_t).",
+    "Clamp the result to the visible domain and append it to the history.",
+    "Repeat on a timer to animate the optimization trace.",
+  ],
+  code: `const next = clamp(x - lr * df(x), domain.minX, domain.maxX);
+setX(next);
+setHistory((history) => [...history, { x: next, y: f(next) }]);`,
+  note:
+    "The plotted curve is f(x) = x^4 - 3x^2 + 2, so the trace makes the derivative-driven movement easy to see.",
 };
 
 const GradientDescentFormula = () => {
@@ -282,22 +303,29 @@ const GradientDescent = () => {
             </Button>
 
             <Button
-              variant="outline"
               onClick={() => {
                 stepOnce();
               }}
+              {...darkSecondaryButtonProps}
             >
               Step
             </Button>
 
             <Button
-              variant="ghost"
               onClick={() => {
                 reset();
               }}
+              {...darkSecondaryButtonProps}
             >
               Reset
             </Button>
+            <AlgorithmDialogButton
+              title={GRADIENT_DESCENT_ALGO.title}
+              summary={GRADIENT_DESCENT_ALGO.summary}
+              steps={GRADIENT_DESCENT_ALGO.steps}
+              code={GRADIENT_DESCENT_ALGO.code}
+              note={GRADIENT_DESCENT_ALGO.note}
+            />
           </HStack>
 
           <Text fontSize="xs" opacity={0.7}>

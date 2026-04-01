@@ -1,0 +1,12 @@
+[project]
+name = "publications-news-service"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.27",
+  "reportlab>=4.2",
+  "pydantic>=2.7",
+]
+
+[tool.uv]

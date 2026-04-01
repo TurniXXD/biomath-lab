@@ -19,6 +19,7 @@ import {
   Tr,
   VStack,
 } from "@chakra-ui/react";
+import { darkSecondaryButtonProps } from "@/components/Animations/AlgorithmDialogButton";
 
 type BodyId = 0 | 1 | 2;
 
@@ -348,10 +349,10 @@ const ThreeBody = () => {
             </Button>
 
             <Button
-              variant="outline"
               onClick={() => {
                 reset();
               }}
+              {...darkSecondaryButtonProps}
             >
               Reset
             </Button>

@@ -35,3 +35,8 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+
+    dna_sequences: Mapped[list["DNASequenceRecord"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
