@@ -148,16 +148,18 @@ def lookup_predictions(accession: str) -> list[AlphaFoldPrediction]:
     return predictions
 
 
-def _candidate_pdb_urls(prediction: AlphaFoldPrediction) -> list[str]:
-    accession = prediction.accession
+def _explicit_asset_urls(prediction: AlphaFoldPrediction) -> list[str]:
     candidates: list[str] = []
-
     for url in [prediction.pdb_url, prediction.cif_url, prediction.bcif_url]:
         if url and url not in candidates:
             candidates.append(url)
+    return candidates
 
+
+def _derived_asset_urls(prediction: AlphaFoldPrediction) -> list[str]:
+    accession = prediction.accession
     entry_id = prediction.entry_id or f"AF-{accession}-F1-v4"
-    derived = [
+    return [
         f"https://alphafold.ebi.ac.uk/files/{entry_id}.pdb",
         f"https://alphafold.ebi.ac.uk/files/{entry_id}.cif",
         f"https://alphafold.ebi.ac.uk/files/{entry_id}.bcif",
@@ -166,12 +168,6 @@ def _candidate_pdb_urls(prediction: AlphaFoldPrediction) -> list[str]:
         f"https://alphafold.ebi.ac.uk/files/AF-{accession}-F1-v4.pdb",
         f"https://alphafold.ebi.ac.uk/files/AF-{accession}-F1-v4.cif",
     ]
-
-    for url in derived:
-        if url not in candidates:
-            candidates.append(url)
-
-    return candidates
 
 
 class _LinkExtractor(HTMLParser):
@@ -213,14 +209,17 @@ def fetch_prediction_pdb_text(accession: str) -> tuple[AlphaFoldPrediction | Non
     prediction = predictions[0] if predictions else None
     normalized = _normalize_accession(accession)
 
-    candidates = _candidate_pdb_urls(prediction) if prediction else []
-    if not candidates:
-        candidates = []
+    candidates: list[str] = []
+    if prediction:
+        candidates.extend(_explicit_asset_urls(prediction))
 
     try:
         candidates.extend(_entry_page_pdb_links(normalized))
     except (HTTPError, URLError) as exc:
         logger.warning("AlphaFold entry page lookup failed accession=%s error=%s", normalized, exc)
+
+    if prediction:
+        candidates.extend(_derived_asset_urls(prediction))
 
     seen: set[str] = set()
     for url in candidates:

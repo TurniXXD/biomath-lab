@@ -17,7 +17,8 @@ RUN pip install --no-cache-dir \
   "pgvector>=0.2.5" \
   "pydantic-settings>=2.2" \
   "alembic>=1.13" \
-  "cobra>=0.29"
+  "cobra>=0.29" \
+  "python-jose>=3.3.0"
 
 COPY . .
 
