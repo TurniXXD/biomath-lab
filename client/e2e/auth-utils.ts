@@ -23,7 +23,6 @@ export async function signInContext(context: BrowserContext, baseURL: string) {
       name: "next-auth.session-token",
       value: token,
       url: baseURL,
-      path: "/",
     },
   ]);
 }

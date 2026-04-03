@@ -4,17 +4,18 @@ import { ArrowRight, Beaker, Radar, Sparkles } from "lucide-react";
 import LoginButtons from "./login-buttons";
 
 type LoginPageProps = {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export const metadata: Metadata = {
-  title: "Sign in",
+  title: "Biomath Lab",
 };
 
-export default function LoginPage({ searchParams }: LoginPageProps) {
-  const callbackUrl = Array.isArray(searchParams?.callbackUrl)
-    ? searchParams?.callbackUrl[0]
-    : searchParams?.callbackUrl ?? "/";
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const callbackUrl = Array.isArray(resolvedSearchParams?.callbackUrl)
+    ? resolvedSearchParams.callbackUrl[0]
+    : resolvedSearchParams?.callbackUrl ?? "/";
 
   return (
     <Box
