@@ -7,6 +7,7 @@ on:
 permissions:
   contents: read
   packages: write
+  id-token: write
 
 jobs:
   server-tests:
@@ -142,6 +143,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Connect runner to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+          ping: ${{ secrets.RPI_HOST }}
 
       - name: Start ssh-agent
         uses: webfactory/ssh-agent@v0.9.0
