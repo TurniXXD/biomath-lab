@@ -140,6 +140,26 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  cleanup-ghcr:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: publish-images
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package-name:
+          - biomath-lab-server
+          - biomath-lab-publications-news
+          - biomath-lab-alignment
+    steps:
+      - name: Delete old GHCR versions for ${{ matrix.package-name }}
+        uses: actions/delete-package-versions@v5
+        with:
+          owner: ${{ github.repository_owner }}
+          package-name: ${{ matrix.package-name }}
+          package-type: container
+          min-versions-to-keep: 10
+
   deploy-rpi:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: publish-images
