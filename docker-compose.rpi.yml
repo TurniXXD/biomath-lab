@@ -60,6 +60,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@db:5432/${POSTGRES_DB:-app}
+      DATABASE_URL_SYNC: postgresql+psycopg://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@db:5432/${POSTGRES_DB:-app}
       PUBLICATIONS_NEWS_BASE_URL: http://publications-news:8100
       ALIGNMENT_BASE_URL: http://alignment-api:8200
     ports:
@@ -71,7 +72,10 @@ services:
         condition: service_healthy
       alignment-api:
         condition: service_healthy
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    command:
+      - sh
+      - -lc
+      - alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 volumes:
   db_data:

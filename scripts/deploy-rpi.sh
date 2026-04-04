@@ -22,5 +22,6 @@ if [[ ! -f ".env" ]]; then
 fi
 
 docker-compose -f "${COMPOSE_FILE}" pull
-docker-compose -f "${COMPOSE_FILE}" up -d
+docker-compose -f "${COMPOSE_FILE}" up -d db publications-news alignment-api
+docker-compose -f "${COMPOSE_FILE}" up -d server
 docker-compose -f "${COMPOSE_FILE}" ps

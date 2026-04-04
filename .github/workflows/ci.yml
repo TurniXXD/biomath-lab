@@ -10,7 +10,39 @@ permissions:
   id-token: write
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      server: ${{ steps.filter.outputs.server }}
+      client: ${{ steps.filter.outputs.client }}
+      publications_news: ${{ steps.filter.outputs.publications_news }}
+      alignment: ${{ steps.filter.outputs.alignment }}
+      common: ${{ steps.filter.outputs.common }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            common:
+              - ".github/workflows/**"
+              - "docker-compose*.yml"
+              - "README.md"
+            server:
+              - "server/**"
+            client:
+              - "client/**"
+            publications_news:
+              - "services/publications-news/**"
+            alignment:
+              - "services/alignment/**"
+
   server-tests:
+    needs: changes
+    if: needs.changes.outputs.server == 'true' || needs.changes.outputs.common == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -31,7 +63,8 @@ jobs:
         run: uv run --with pytest pytest -q
 
   client-playwright:
-    needs: server-tests
+    needs: changes
+    if: needs.changes.outputs.client == 'true' || needs.changes.outputs.common == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -62,7 +95,8 @@ jobs:
         run: pnpm test:e2e
 
   client-build:
-    needs: client-playwright
+    needs: [changes, client-playwright]
+    if: needs.changes.outputs.client == 'true' || needs.changes.outputs.common == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -90,8 +124,8 @@ jobs:
         run: pnpm build
 
   publish-images:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: server-tests
+    needs: changes
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && (needs.changes.outputs.server == 'true' || needs.changes.outputs.publications_news == 'true' || needs.changes.outputs.alignment == 'true' || needs.changes.outputs.common == 'true')
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -128,6 +162,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push ${{ matrix.name }}
+        if: |
+          (
+            matrix.name == 'server' && (needs.changes.outputs.server == 'true' || needs.changes.outputs.common == 'true')
+          ) || (
+            matrix.name == 'publications-news' && (needs.changes.outputs.publications_news == 'true' || needs.changes.outputs.common == 'true')
+          ) || (
+            matrix.name == 'alignment' && (needs.changes.outputs.alignment == 'true' || needs.changes.outputs.common == 'true')
+          )
         uses: docker/build-push-action@v6
         with:
           context: ./${{ matrix.context }}
@@ -137,12 +179,12 @@ jobs:
           tags: |
             ghcr.io/${{ steps.owner.outputs.owner }}/biomath-lab-${{ matrix.name }}:latest
             ghcr.io/${{ steps.owner.outputs.owner }}/biomath-lab-${{ matrix.name }}:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
   cleanup-ghcr:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: publish-images
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && (needs.changes.outputs.server == 'true' || needs.changes.outputs.publications_news == 'true' || needs.changes.outputs.alignment == 'true' || needs.changes.outputs.common == 'true')
+    needs: [changes, publish-images]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -161,8 +203,8 @@ jobs:
           min-versions-to-keep: 10
 
   deploy-rpi:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: publish-images
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && (needs.changes.outputs.server == 'true' || needs.changes.outputs.publications_news == 'true' || needs.changes.outputs.alignment == 'true' || needs.changes.outputs.common == 'true')
+    needs: [changes, publish-images]
     runs-on: ubuntu-latest
     environment: production
     steps:
