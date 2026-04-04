@@ -334,6 +334,8 @@ const SolarSystem3D = () => {
           <HStack flexWrap="wrap" spacing={3}>
             <Button
               variant={showLabels ? "solid" : "outline"}
+              color="white"
+              borderColor="whiteAlpha.500"
               onClick={() => {
                 setShowLabels((value) => !value);
               }}
@@ -342,6 +344,8 @@ const SolarSystem3D = () => {
             </Button>
             <Button
               variant={showOrbits ? "solid" : "outline"}
+              color="white"
+              borderColor="whiteAlpha.500"
               onClick={() => {
                 setShowOrbits((value) => !value);
               }}

@@ -341,6 +341,8 @@ const HilbertCurve3D = () => {
                 setAutoRotate((value) => !value);
               }}
               variant={autoRotate ? "solid" : "outline"}
+              color="white"
+              borderColor="whiteAlpha.500"
             >
               {autoRotate ? "Auto-Rotate On" : "Auto-Rotate Off"}
             </Button>
@@ -349,6 +351,8 @@ const HilbertCurve3D = () => {
                 setShowNodes((value) => !value);
               }}
               variant={showNodes ? "solid" : "outline"}
+              color="white"
+              borderColor="whiteAlpha.500"
             >
               {showNodes ? "Hide Nodes" : "Show Nodes"}
             </Button>

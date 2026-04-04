@@ -8,87 +8,271 @@ Live app: [https://biomath-lab.vantuch.dev/](https://biomath-lab.vantuch.dev/)
 
 - `client/` - Next.js frontend
 - `server/` - FastAPI backend
-- `services/publications-news/` - Publications and news microservice
-- `services/alignment/` - Rust sequence alignment CLI
+- `services/publications-news/` - publications digest microservice
+- `services/alignment/` - Rust sequence alignment crate and HTTP service
 
-## Docker
+## Local Development
 
-Use the root compose file for local development:
+Use the root script to start the local stack:
 
 ```bash
 ./run.sh
 ```
 
-The root `run.sh` starts only the database through `docker compose` and runs
-the client, FastAPI backend, publications-news service, and alignment server
-locally in dev mode.
+That script starts the database and runs the client, backend, publications-news
+service, and alignment service in dev mode.
 
-The Rust alignment crate lives in `services/alignment/`. It is packaged both
-as an optional CLI tool image and as a small HTTP service used by the FastAPI
-backend. Run the CLI tool with:
+## Production Layout
 
-```bash
-docker compose --profile tools run --rm alignment global ACGT AGT
-```
+Recommended deployment split:
 
-## Raspberry Pi + Tailscale sketch
+- `client` on Vercel
+- `server` on a Raspberry Pi behind Nginx
+- `services/publications-news` and `services/alignment` on the same Pi
+- Tailscale for private SSH/deploy access to the Pi
 
-Recommended production flow for the backend stack:
+The browser talks to the client on Vercel. The client talks to the FastAPI
+server through the public API URL. The server talks to the private services on
+the Pi over the internal Docker network.
 
-1. GitHub Actions builds the backend images for `server`, `publications-news`,
-   and `alignment` and pushes them to GHCR.
-2. Your Raspberry Pi runs `docker compose -f docker-compose.rpi.yml up -d`.
-3. The Pi pulls the images from GHCR, then Tailscale exposes only the `server`
-   port.
-4. The browser talks to the server, and the server talks to the private services.
+## From Scratch Setup
 
-On the Pi, set:
+### 1. GitHub
 
-```bash
-export GHCR_OWNER=your-github-user-or-org
-export IMAGE_TAG=latest
-```
-
-If the GHCR packages are private, log in once on the Pi:
-
-```bash
-docker login ghcr.io
-```
-
-Then start or refresh the stack:
-
-```bash
-docker compose -f docker-compose.rpi.yml pull
-docker compose -f docker-compose.rpi.yml up -d
-```
-
-If you want the Pi to expose only the server through Tailscale, point
-`tailscale serve` at `http://127.0.0.1:8000` or proxy the port you publish for
-the server container.
-
-### Pi deployment files
-
-Copy `docker-compose.rpi.env.example` to `.env` on the Pi and fill in your
-values there. The deployment script is `scripts/deploy-rpi.sh`.
-
-The Pi stack is expected to live at `/home/admin/biomath-lab`. If you want to
-push the compose file and deploy script there from your local checkout, use:
-
-```bash
-RPI_HOST=your-pi-host RPI_USER=admin ./scripts/sync-rpi-stack.sh
-```
-
-If you want GitHub Actions to SSH into the Pi and restart the stack
-automatically, add these repository secrets:
+Create or use the repository, then add these repository secrets for the deploy
+workflow:
 
 - `RPI_HOST`
 - `RPI_USER`
 - `RPI_SSH_KEY`
 - `RPI_SSH_PORT` if you do not use port `22`
+- `TS_OAUTH_CLIENT_ID`
+- `TS_OAUTH_SECRET`
 
-The deploy job assumes the Pi already has:
+The GitHub Actions workflow builds backend images on pushes to `main`, pushes
+them to GHCR, and SSHes into the Pi over Tailscale to restart the stack.
 
-- Docker and Docker Compose
+### 2. Google OAuth
+
+Create a Google Cloud OAuth client of type Web application.
+
+Add these authorized JavaScript origins:
+
+- `http://localhost:3000`
+- `https://biomath-lab.vantuch.dev`
+
+Add these authorized redirect URIs:
+
+- `http://localhost:3000/api/auth/callback/google`
+- `https://biomath-lab.vantuch.dev/api/auth/callback/google`
+
+Copy the Google client ID and secret into:
+
+- local client `.env` during development
+- Vercel environment variables
+
+### 3. GitHub OAuth
+
+Create a GitHub OAuth App for Biomath Lab.
+
+Set the callback URLs to:
+
+- `http://localhost:3000/api/auth/callback/github`
+- `https://biomath-lab.vantuch.dev/api/auth/callback/github`
+
+Copy the GitHub client ID and secret into:
+
+- local client `.env` during development
+- Vercel environment variables
+
+### 4. Tailscale
+
+Join the Raspberry Pi to your tailnet.
+
+Use Tailscale for:
+
+- GitHub Actions SSH deploy access to the Pi
+- optional private admin access to the Pi
+
+The GitHub Actions workflow expects a Tailscale OAuth client tagged for CI.
+The runner uses that client to reach the Pi over your tailnet before SSHing in.
+
+### 5. Vercel
+
+Deploy the `client/` directory as the frontend app.
+
+Set these production environment variables in Vercel:
+
+```env
+NEXTAUTH_URL=https://biomath-lab.vantuch.dev
+NEXTAUTH_SECRET=generate-a-long-random-secret
+
+NEXT_PUBLIC_API_URL=...
+
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...
+```
+
+Notes:
+
+- `NEXTAUTH_URL` must be the public client URL.
+- `NEXT_PUBLIC_API_URL` must point to the public FastAPI base URL.
+- If you proxy the API somewhere else, change this URL accordingly.
+
+For local development, use `client/.env.example` as the template.
+
+### 6. Raspberry Pi
+
+Install on the Pi:
+
+- Docker
+- Docker Compose
 - Tailscale
-- the files synced into `/home/admin/biomath-lab`
-- a prior `docker login ghcr.io` if the GHCR packages are private
+- Nginx
+
+Clone the repo to:
+
+```bash
+/home/admin/biomath-lab
+```
+
+Create `/home/admin/biomath-lab/.env` from `docker-compose.rpi.env.example`
+and fill in:
+
+```env
+GHCR_OWNER=turnixxd
+IMAGE_TAG=latest
+
+POSTGRES_DB=biomath-lab
+POSTGRES_USER=app
+POSTGRES_PASSWORD=...
+
+CORS_ALLOW_ORIGINS=https://biomath-lab.vantuch.dev,http://localhost:3000,http://127.0.0.1:3000
+
+PUBMED_TOOL=biomath-publications-news
+PUBMED_EMAIL=you@example.com
+
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USERNAME=you@example.com
+SMTP_PASSWORD=your-app-password
+SMTP_USE_TLS=true
+
+KINDLE_RECIPIENT=your_kindle@kindle.com
+KINDLE_SENDER=you@example.com
+
+PUBLICATIONS_NEWS_OUTPUT_DIR=/app/output
+```
+
+The `publications-news` container reads the same `.env` file through
+`env_file`, so the digest CLI and cron job can use those settings too.
+
+If your GHCR packages are private, log in once on the Pi:
+
+```bash
+docker login ghcr.io
+```
+
+Use a GitHub personal access token with `read:packages`.
+
+Start or refresh the stack:
+
+```bash
+cd /home/admin/biomath-lab
+./scripts/deploy-rpi.sh
+```
+
+### 7. Nginx
+
+Expose the FastAPI server on your public domain through a path prefix such as
+`/api/biomath-lab`.
+
+Example:
+
+```nginx
+server {
+    listen 80;
+    server_name _;
+
+    location /api/biomath-lab/ {
+        proxy_pass http://127.0.0.1:8000/;
+        proxy_http_version 1.1;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Prefix /api/biomath-lab;
+
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+```
+
+If you use a different path or a subdomain, update `NEXT_PUBLIC_API_URL` in
+Vercel to match.
+
+### 8. Publications Cron
+
+The publications-news service can generate and email digests from cron on the
+Pi.
+
+Example daily run at 06:30:
+
+```cron
+30 6 * * * cd /home/admin/biomath-lab && /usr/bin/docker-compose -f docker-compose.rpi.yml run --rm publications-news python -m app.cli run-digest --query "glycolysis" --query "metabolic flux analysis" --days 1 --send-kindle >> /home/admin/biomath-lab/publications-news.log 2>&1
+```
+
+If you want to avoid overlap, wrap the command in `flock`.
+
+## Environment Cheat Sheet
+
+### Vercel
+
+- `NEXTAUTH_URL`
+- `NEXTAUTH_SECRET`
+- `NEXT_PUBLIC_API_URL`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GITHUB_CLIENT_ID`
+- `GITHUB_CLIENT_SECRET`
+
+### Raspberry Pi `.env`
+
+- `GHCR_OWNER`
+- `IMAGE_TAG`
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `PUBMED_TOOL`
+- `PUBMED_EMAIL`
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_USERNAME`
+- `SMTP_PASSWORD`
+- `SMTP_USE_TLS`
+- `KINDLE_RECIPIENT`
+- `KINDLE_SENDER`
+
+### GitHub repository secrets
+
+- `RPI_HOST`
+- `RPI_USER`
+- `RPI_SSH_KEY`
+- `RPI_SSH_PORT` if needed
+- `TS_OAUTH_CLIENT_ID`
+- `TS_OAUTH_SECRET`
+
+## Pi Deployment Files
+
+- `docker-compose.rpi.env.example`
+- `scripts/deploy-rpi.sh`
+- `scripts/sync-rpi-stack.sh`
+
+The deploy script assumes the Pi already has the repo checked out under
+`/home/admin/biomath-lab`.

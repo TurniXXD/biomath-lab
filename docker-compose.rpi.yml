@@ -19,6 +19,8 @@ services:
     image: ghcr.io/${GHCR_OWNER}/biomath-lab-publications-news:${IMAGE_TAG:-latest}
     container_name: app-publications-news
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       PUBLICATIONS_NEWS_OUTPUT_DIR: /app/output
     volumes:

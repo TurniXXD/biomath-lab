@@ -1,4 +1,5 @@
 import axios, { type AxiosRequestConfig } from "axios";
+import { getSession } from "next-auth/react";
 
 const http = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -11,11 +12,19 @@ export const axiosInstance: AxiosInstance = async <T>(
   url: string,
   config?: RequestInit,
 ) => {
+  const session = await getSession();
   const axiosConfig: AxiosRequestConfig = {
     url,
     method: config?.method as AxiosRequestConfig["method"],
     headers: config?.headers as AxiosRequestConfig["headers"],
   };
+
+  if (session?.accessToken) {
+    axiosConfig.headers = {
+      ...axiosConfig.headers,
+      Authorization: `Bearer ${session.accessToken}`,
+    };
+  }
 
   // Map fetch body -> axios data
   if (config?.body !== undefined) {
