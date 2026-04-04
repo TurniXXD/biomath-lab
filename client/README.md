@@ -25,7 +25,8 @@ Set these production environment variables in Vercel:
 ```env
 NEXTAUTH_URL=https://biomath-lab.vantuch.dev
 NEXTAUTH_SECRET=generate-a-long-random-secret
-NEXT_PUBLIC_API_URL=...
+NEXT_PUBLIC_API_URL=/api/biomath-lab
+PI_API_ORIGIN=...
 
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
@@ -38,6 +39,10 @@ OAuth callback URLs must point back to the Vercel domain:
 
 - `https://biomath-lab.vantuch.dev/api/auth/callback/google`
 - `https://biomath-lab.vantuch.dev/api/auth/callback/github`
+
+The client calls the API through the same-origin path `/api/biomath-lab`,
+and `client/next.config.ts` rewrites that prefix to the Raspberry Pi backend
+when `PI_API_ORIGIN` is set in the build environment.
 
 The root README has the full end-to-end deployment checklist for GitHub,
 Google, Tailscale, Vercel, and the Raspberry Pi.

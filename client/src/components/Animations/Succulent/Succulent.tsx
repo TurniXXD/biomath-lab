@@ -163,7 +163,7 @@ const Succulent = () => {
                       d={`M 0 0 C -${(leafWidth * 0.55).toFixed(3)} -${(leafLength * 0.35).toFixed(3)}, -${leafWidth.toFixed(3)} -${(leafLength * 0.75).toFixed(3)}, 0 -${leafLength.toFixed(3)} C ${leafWidth.toFixed(3)} -${(leafLength * 0.75).toFixed(3)}, ${(leafWidth * 0.55).toFixed(3)} -${(leafLength * 0.35).toFixed(3)}, 0 0 Z`}
                       fill={index % 3 === 0 ? "url(#succulent-leaf)" : color}
                       opacity={0.9}
-                      transform={`skewX(${(Math.sin(index) * 8).toFixed(2)}) scaleY(${(1 + bend).toFixed(3)})`}
+                      transform={`scale(1 ${(1 + bend).toFixed(3)})`}
                     />
                     <path
                       d={`M 0 -0.12 C ${(-leafWidth * 0.12).toFixed(3)} -${(leafLength * 0.45).toFixed(3)}, ${(leafWidth * 0.12).toFixed(3)} -${(leafLength * 0.7).toFixed(3)}, 0 -${leafLength.toFixed(3)}`}

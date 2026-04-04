@@ -107,7 +107,8 @@ Set these production environment variables in Vercel:
 NEXTAUTH_URL=https://biomath-lab.vantuch.dev
 NEXTAUTH_SECRET=generate-a-long-random-secret
 
-NEXT_PUBLIC_API_URL=...
+NEXT_PUBLIC_API_URL=/api/biomath-lab
+PI_API_ORIGIN=...
 
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
@@ -119,8 +120,9 @@ GITHUB_CLIENT_SECRET=...
 Notes:
 
 - `NEXTAUTH_URL` must be the public client URL.
-- `NEXT_PUBLIC_API_URL` must point to the public FastAPI base URL.
-- If you proxy the API somewhere else, change this URL accordingly.
+- `NEXT_PUBLIC_API_URL=/api/biomath-lab` keeps browser requests same-origin.
+- `client/next.config.ts` rewrites that path to the Raspberry Pi backend only
+  when `PI_API_ORIGIN` is set in the build environment.
 
 For local development, use `client/.env.example` as the template.
 
