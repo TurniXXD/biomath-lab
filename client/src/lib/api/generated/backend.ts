@@ -1,5 +1,5 @@
 import { useMutation, useQuery, type UseMutationResult, type UseQueryResult } from "@tanstack/react-query";
-import { axiosInstance } from "@/lib/api/client";
+import { axiosInstance, publicHttp } from "@/lib/api/client";
 
 export type UserCreate = {
   email: string;
@@ -304,8 +304,19 @@ const postJson = <TData>(url: string, body: unknown) => {
   });
 };
 
+const postPublicJson = <TData>(url: string, body: unknown) => {
+  return publicHttp.request<TData>({
+    url,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: JSON.stringify(body),
+  }).then((response) => response.data);
+};
+
 export const upsertUserByEmail = (payload: UserCreate) => {
-  return postJson<UserOut>("/users/oauth", payload);
+  return postPublicJson<UserOut>("/users/oauth", payload);
 };
 
 export const useUpsertUserByEmailMutation = (): MutationResult<

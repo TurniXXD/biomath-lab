@@ -6,6 +6,11 @@ const http = axios.create({
   withCredentials: true,
 });
 
+export const publicHttp = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  withCredentials: true,
+});
+
 type AxiosInstance = <T>(url: string, config?: RequestInit) => Promise<T>;
 
 export const axiosInstance: AxiosInstance = async <T>(

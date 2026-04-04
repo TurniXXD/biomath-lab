@@ -144,6 +144,7 @@ and fill in:
 
 ```env
 GHCR_OWNER=turnixxd
+NEXTAUTH_SECRET=generate-a-long-random-secret
 IMAGE_TAG=latest
 
 POSTGRES_DB=biomath-lab
