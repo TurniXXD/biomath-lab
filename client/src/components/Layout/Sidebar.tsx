@@ -131,6 +131,7 @@ const Sidebar = () => {
       <Link
         as={NextLink}
         href={item.href}
+        prefetch={false}
         w="100%"
         p={2}
         borderRadius="md"
@@ -234,6 +235,7 @@ const Sidebar = () => {
                       key={a.id}
                       as={NextLink}
                       href={a.href}
+                      prefetch={false}
                       px={2}
                       py={2}
                       borderRadius="md"

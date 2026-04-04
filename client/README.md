@@ -41,8 +41,8 @@ OAuth callback URLs must point back to the Vercel domain:
 - `https://biomath-lab.vantuch.dev/api/auth/callback/github`
 
 The client calls the API through the same-origin path `/api/biomath-lab`,
-and `client/next.config.ts` rewrites that prefix to the Raspberry Pi backend
-when `PI_API_ORIGIN` is set in the build environment.
+and the route handler at `client/src/app/api/biomath-lab/[[...path]]/route.ts`
+forwards that prefix to the Raspberry Pi backend using `PI_API_ORIGIN`.
 
 The root README has the full end-to-end deployment checklist for GitHub,
 Google, Tailscale, Vercel, and the Raspberry Pi.

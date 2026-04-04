@@ -121,8 +121,8 @@ Notes:
 
 - `NEXTAUTH_URL` must be the public client URL.
 - `NEXT_PUBLIC_API_URL=/api/biomath-lab` keeps browser requests same-origin.
-- `client/next.config.ts` rewrites that path to the Raspberry Pi backend only
-  when `PI_API_ORIGIN` is set in the build environment.
+- `client/src/app/api/biomath-lab/[[...path]]/route.ts` proxies that path to
+  the Raspberry Pi backend using `PI_API_ORIGIN`.
 
 For local development, use `client/.env.example` as the template.
 
